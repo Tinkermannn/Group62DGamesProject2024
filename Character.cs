@@ -13,18 +13,20 @@ public class Character
 	public int I { get; set; }
 	public int J { get; set; }
 
-	public int TileI => I < 0 ? (I - 6) / 7 : I / 7;
-	public int TileJ => J < 0 ? (J - 3) / 4 : J / 4;
-	private string[]? _mapAnaimation;
+	public int TileI => (I < 0 ? I - 6 : I) / 7;
+	public int TileJ => (J < 0 ? J - 3 : J) / 4;
+
+	private string[]? _mapAnimation;
 	public string[]? MapAnimation
 	{
-		get => _mapAnaimation;
+		get => _mapAnimation;
 		set
 		{
-			_mapAnaimation = value;
+			_mapAnimation = value;
 			_mapAnimationFrame = 0;
 		}
 	}
+
 	private int _mapAnimationFrame;
 	public int MapAnimationFrame
 	{
@@ -33,31 +35,30 @@ public class Character
 		{
 			_mapAnimationFrame = value;
 			Moved = false;
-			if (_mapAnimationFrame >= MapAnimation!.Length)
+			if (_mapAnimationFrame >= MapAnimation?.Length)
 			{
-				if (MapAnimation == Sprites.RunUp)    { Moved = true; MapAnimation = Sprites.IdleUp;    }
-				if (MapAnimation == Sprites.RunDown)  { Moved = true; MapAnimation = Sprites.IdleDown;  }
-				if (MapAnimation == Sprites.RunLeft)  { Moved = true; MapAnimation = Sprites.IdleLeft;  }
-				if (MapAnimation == Sprites.RunRight) { Moved = true; MapAnimation = Sprites.IdleRight; }
+				MapAnimation = MapAnimation switch
+				{
+					Sprites.RunUp => Sprites.IdleUp,
+					Sprites.RunDown => Sprites.IdleDown,
+					Sprites.RunLeft => Sprites.IdleLeft,
+					Sprites.RunRight => Sprites.IdleRight,
+					_ => MapAnimation
+				};
+				Moved = MapAnimation != null;
 				_mapAnimationFrame = 0;
 			}
 		}
 	}
-	public bool IsIdle
-	{
-		get =>
-			_mapAnaimation == Sprites.IdleDown ||
-			_mapAnaimation == Sprites.IdleUp ||
-			_mapAnaimation == Sprites.IdleLeft ||
-			_mapAnaimation == Sprites.IdleRight;
-	}
-	public string Render =>
-		_mapAnaimation is not null && _mapAnimationFrame < _mapAnaimation.Length
-		? _mapAnaimation[_mapAnimationFrame]
-		: // "T" pose :D
-		  @" __O__ " + '\n' +
+
+	public bool IsIdle => MapAnimation is Sprites.IdleDown or Sprites.IdleUp or Sprites.IdleLeft or Sprites.IdleRight;
+
+	public string Render => MapAnimation is not null && _mapAnimationFrame < MapAnimation.Length
+		? MapAnimation[_mapAnimationFrame]
+		: @" __O__ " + '\n' +
 		  @"   |   " + '\n' +
 		  @"   |   " + '\n' +
 		  @"  | |  ";
+
 	public bool Moved { get; set; } = false;
 }
