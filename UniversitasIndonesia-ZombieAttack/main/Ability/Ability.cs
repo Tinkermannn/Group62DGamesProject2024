@@ -6,10 +6,14 @@ public class Ability
     private string abilityDescription;
     private AbilitySpecialEffect abilitySpecialEffect;
     private AbilityTarget abilityTarget;
-    private int attackPower;
+    private int damage;
     
-    public Ability(string abilityName, string abilityDescription, AbilitySpecialEffect abilitySpecialEffect, AbilityTarget abilityTarget, int attackPower)
+    public Ability(string abilityName, string abilityDescription, AbilitySpecialEffect abilitySpecialEffect, AbilityTarget abilityTarget, int damage)
     {
-        
+        this.abilityName = abilityName;
+        this.abilityDescription = abilityDescription;
+        this.abilitySpecialEffect = abilitySpecialEffect;
+        this.abilityTarget = abilityTarget;
+        this.damage = damage;
     }
 }

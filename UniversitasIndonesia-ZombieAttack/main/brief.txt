@@ -6,7 +6,7 @@ Demikian sebaliknya.
 
 Opsi yang dimiliki player jika menerima serangan adalah 
 Player dapat menghindar, namun akan mengkonsumsi stamina.
-Stamina dalam jumlah terbatas.
+Stamina dalam jumlah terbatas. Setelah stamina habis, player hanya bisa menerima damage.
 
 Jika player dan monster memiliki attack speed yang mendekati,
 maka terdapat kemungkinan monster dapat menangkis basic attack.
@@ -15,3 +15,5 @@ dari player. Setiap perbedaan satu point, terdapat kemungkinan 2,5% attack dapat
 Maka jika perbedaan stat 5 point, kemungkinan basic attack ditahan sekitar 12,5%
 Jika 10 point, maka kemungkinan ditahan sekitar 25%. Begitu seterusnya hingga maks 20 point.
 Diatas 20 point akan tetap dihitung 50%.
+
+*perhitungan dan skala masih dipertimbangkan.
