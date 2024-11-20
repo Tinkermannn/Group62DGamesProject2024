@@ -1,6 +1,6 @@
 namespace zombie_attack_main;
 
-public class Player
+public class GameLogic
 {
     
 }
