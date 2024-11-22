@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "Role Playing Game/1.0.0": {
+        "runtime": {
+          "Role Playing Game.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Role Playing Game/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
