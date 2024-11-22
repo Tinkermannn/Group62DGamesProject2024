@@ -60,7 +60,3 @@ Proyek ini dikembangkan oleh:
 * **Abednego Zebua (2306161883)**
 * **Raka Arrayan Muttaqein (2306161800)**
 * **Daffa Hardhan (2306161263)**
-
-
-## **Lisensi**
-*[Tambahkan informasi lisensi di sini]*
