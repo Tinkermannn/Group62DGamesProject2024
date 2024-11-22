@@ -1,63 +1,110 @@
-namespace Role_Playing_Game;
-
 public class Character
 {
-	public int Level { get; set; } = 1;
-	public int Experience { get; set; }
-	public int ExperienceToNextLevel { get; set; } = 10;
-	public int Health { get; set; } = 5;
-	public int MaxHealth => Level * 5;
-	public int Gold { get; set; }
-	public int Damage { get; set; } = 1;
+    private static Character instance;
+    private static readonly object lockObject = new object();
 
-	public int I { get; set; }
-	public int J { get; set; }
+    public string Name { get; private set; }
+    public int Health { get; private set; }
+    public int MaxHealth { get; private set; }
+    public int Strength { get; set; }  // Menambahkan setter untuk Strength
+    public int Defense { get; set; }   // Menambahkan setter untuk Defense
+    public int Level { get; private set; }
+    public int Experience { get; private set; }
+    public Inventory Inventory { get; private set; }
 
-	public int TileI => I < 0 ? (I - 6) / 7 : I / 7;
-	public int TileJ => J < 0 ? (J - 3) / 4 : J / 4;
-	private string[]? _mapAnaimation;
-	public string[]? MapAnimation
-	{
-		get => _mapAnaimation;
-		set
-		{
-			_mapAnaimation = value;
-			_mapAnimationFrame = 0;
-		}
-	}
-	private int _mapAnimationFrame;
-	public int MapAnimationFrame
-	{
-		get => _mapAnimationFrame;
-		set
-		{
-			_mapAnimationFrame = value;
-			Moved = false;
-			if (_mapAnimationFrame >= MapAnimation!.Length)
-			{
-				if (MapAnimation == Sprites.RunUp)    { Moved = true; MapAnimation = Sprites.IdleUp;    }
-				if (MapAnimation == Sprites.RunDown)  { Moved = true; MapAnimation = Sprites.IdleDown;  }
-				if (MapAnimation == Sprites.RunLeft)  { Moved = true; MapAnimation = Sprites.IdleLeft;  }
-				if (MapAnimation == Sprites.RunRight) { Moved = true; MapAnimation = Sprites.IdleRight; }
-				_mapAnimationFrame = 0;
-			}
-		}
-	}
-	public bool IsIdle
-	{
-		get =>
-			_mapAnaimation == Sprites.IdleDown ||
-			_mapAnaimation == Sprites.IdleUp ||
-			_mapAnaimation == Sprites.IdleLeft ||
-			_mapAnaimation == Sprites.IdleRight;
-	}
-	public string Render =>
-		_mapAnaimation is not null && _mapAnimationFrame < _mapAnaimation.Length
-		? _mapAnaimation[_mapAnimationFrame]
-		: // "T" pose :D
-		  @" __O__ " + '\n' +
-		  @"   |   " + '\n' +
-		  @"   |   " + '\n' +
-		  @"  | |  ";
-	public bool Moved { get; set; } = false;
+    private Character()
+    {
+        Inventory = new Inventory();
+        Level = 1;
+        Experience = 0;
+        InitializeBaseStats();
+    }
+
+    private void InitializeBaseStats()
+    {
+        MaxHealth = 100;
+        Health = MaxHealth;
+        Strength = 10;
+        Defense = 5;
+    }
+
+    public static Character GetInstance()
+    {
+        if (instance == null)
+        {
+            lock (lockObject)
+            {
+                if (instance == null)
+                {
+                    instance = new Character();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void Initialize(string name)
+    {
+        Name = name;
+    }
+
+    public void GainExperience(int amount)
+    {
+        Experience += amount;
+        CheckLevelUp();
+    }
+
+    private void CheckLevelUp()
+    {
+        int experienceNeeded = Level * 100;
+        while (Experience >= experienceNeeded)
+        {
+            LevelUp();
+            experienceNeeded = Level * 100;
+        }
+    }
+
+    private void LevelUp()
+    {
+        Level++;
+        MaxHealth += 20;
+        Health = MaxHealth;
+        Strength += 5;
+        Defense += 3;
+        Experience -= (Level - 1) * 100;
+        Console.WriteLine($"{Name} leveled up to level {Level}!");
+    }
+
+    public void TakeDamage(int damage)
+    {
+        int effectiveDamage = Math.Max(damage - Defense, 0);
+        Health -= effectiveDamage;
+        Console.WriteLine($"{Name} took {effectiveDamage} damage. Health: {Health}/{MaxHealth}");
+
+        if (Health <= 0)
+        {
+            Console.WriteLine($"{Name} has been defeated!");
+        }
+    }
+
+    // Method to increase Strength
+    public void IncreaseStrength(int amount)
+    {
+        Strength += amount;
+        Console.WriteLine($"{Name}'s strength is now {Strength}.");
+    }
+
+    // Method to increase Defense
+    public void IncreaseDefense(int amount)
+    {
+        Defense += amount;
+        Console.WriteLine($"{Name}'s defense is now {Defense}.");
+    }
+
+    // Method to use an item
+    public void UseItem(IItem item)
+    {
+        Console.WriteLine($"{Name} uses {item.Name}: {item.Description}");
+        item.Use(this);
+    }
 }
