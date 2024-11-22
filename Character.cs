@@ -1,101 +1,110 @@
-namespace Role_Playing_Game
+public class Character
 {
-    public class Character
+    private static Character instance;
+    private static readonly object lockObject = new object();
+
+    public string Name { get; private set; }
+    public int Health { get; private set; }
+    public int MaxHealth { get; private set; }
+    public int Strength { get; set; }  // Menambahkan setter untuk Strength
+    public int Defense { get; set; }   // Menambahkan setter untuk Defense
+    public int Level { get; private set; }
+    public int Experience { get; private set; }
+    public Inventory Inventory { get; private set; }
+
+    private Character()
     {
-        // Properti untuk level karakter
-        public int Level { get; set; } = 1;
+        Inventory = new Inventory();
+        Level = 1;
+        Experience = 0;
+        InitializeBaseStats();
+    }
 
-        // Properti untuk pengalaman karakter
-        public int Experience { get; set; }
+    private void InitializeBaseStats()
+    {
+        MaxHealth = 100;
+        Health = MaxHealth;
+        Strength = 10;
+        Defense = 5;
+    }
 
-        // Properti untuk pengalaman yang dibutuhkan untuk naik level
-        public int ExperienceToNextLevel { get; set; } = 10;
-
-        // Properti untuk kesehatan karakter saat ini
-        public int Health { get; set; } = 20;
-
-        // Properti untuk kesehatan maksimum karakter
-        public int MaxHealth => Level * 20;
-
-        // Properti untuk emas yang dimiliki karakter
-        public int Gold { get; set; }
-
-        // Properti untuk damage yang diberikan oleh karakter
-        public int Damage { get; set; } = 8;
-
-        // Properti untuk posisi karakter di grid (baris)
-        public int I { get; set; }
-
-        // Properti untuk posisi karakter di grid (kolom)
-        public int J { get; set; }
-
-        // Properti untuk menghitung tile berdasarkan posisi I
-        public int TileI => I < 0 ? (I - 6) / 7 : I / 7;
-
-        // Properti untuk menghitung tile berdasarkan posisi J
-        public int TileJ => J < 0 ? (J - 3) / 4 : J / 4;
-
-        // Properti untuk animasi karakter di peta
-        private string[]? _mapAnimation;
-
-        // Properti untuk mendapatkan dan mengatur animasi karakter
-        public string[]? MapAnimation
+    public static Character GetInstance()
+    {
+        if (instance == null)
         {
-            get => _mapAnimation;
-            set
+            lock (lockObject)
             {
-                _mapAnimation = value;
-                _mapAnimationFrame = 0; // Mulai animasi dari frame pertama
-            }
-        }
-
-        // Properti untuk frame animasi saat ini
-        private int _mapAnimationFrame;
-
-        // Properti untuk mengatur frame animasi yang sedang ditampilkan
-        public int MapAnimationFrame
-        {
-            get => _mapAnimationFrame;
-            set
-            {
-                _mapAnimationFrame = value;
-                Moved = false; // Set apakah karakter sudah bergerak atau belum
-
-                // Jika sudah mencapai akhir animasi, kembali ke posisi idle
-                if (_mapAnimationFrame >= MapAnimation!.Length)
+                if (instance == null)
                 {
-                    // Cek animasi dan ganti ke animasi idle yang sesuai
-                    if (_mapAnimation == Sprites.RunUp) { Moved = true; MapAnimation = Sprites.IdleUp; }
-                    if (_mapAnimation == Sprites.RunDown) { Moved = true; MapAnimation = Sprites.IdleDown; }
-                    if (_mapAnimation == Sprites.RunLeft) { Moved = true; MapAnimation = Sprites.IdleLeft; }
-                    if (_mapAnimation == Sprites.RunRight) { Moved = true; MapAnimation = Sprites.IdleRight; }
-
-                    _mapAnimationFrame = 0; // Reset frame animasi
+                    instance = new Character();
                 }
             }
         }
+        return instance;
+    }
 
-        // Properti untuk memeriksa apakah karakter sedang idle
-        public bool IsIdle
+    public void Initialize(string name)
+    {
+        Name = name;
+    }
+
+    public void GainExperience(int amount)
+    {
+        Experience += amount;
+        CheckLevelUp();
+    }
+
+    private void CheckLevelUp()
+    {
+        int experienceNeeded = Level * 100;
+        while (Experience >= experienceNeeded)
         {
-            get =>
-                _mapAnimation == Sprites.IdleDown ||
-                _mapAnimation == Sprites.IdleUp ||
-                _mapAnimation == Sprites.IdleLeft ||
-                _mapAnimation == Sprites.IdleRight;
+            LevelUp();
+            experienceNeeded = Level * 100;
         }
+    }
 
-        // Properti untuk menampilkan animasi karakter saat ini
-        public string Render =>
-            _mapAnimation != null && _mapAnimationFrame < _mapAnimation.Length
-                ? _mapAnimation[_mapAnimationFrame]  // Jika animasi ada, tampilkan frame saat ini
-                : // Jika tidak ada animasi, tampilkan pose T
-                  @" __O__ " + '\n' +
-                  @"   |   " + '\n' +
-                  @"   |   " + '\n' +
-                  @"  | |  ";
+    private void LevelUp()
+    {
+        Level++;
+        MaxHealth += 20;
+        Health = MaxHealth;
+        Strength += 5;
+        Defense += 3;
+        Experience -= (Level - 1) * 100;
+        Console.WriteLine($"{Name} leveled up to level {Level}!");
+    }
 
-        // Properti untuk menunjukkan apakah karakter sudah bergerak
-        public bool Moved { get; set; } = false;
+    public void TakeDamage(int damage)
+    {
+        int effectiveDamage = Math.Max(damage - Defense, 0);
+        Health -= effectiveDamage;
+        Console.WriteLine($"{Name} took {effectiveDamage} damage. Health: {Health}/{MaxHealth}");
+
+        if (Health <= 0)
+        {
+            Console.WriteLine($"{Name} has been defeated!");
+        }
+    }
+
+    // Method to increase Strength
+    public void IncreaseStrength(int amount)
+    {
+        Strength += amount;
+        Console.WriteLine($"{Name}'s strength is now {Strength}.");
+    }
+
+    // Method to increase Defense
+    public void IncreaseDefense(int amount)
+    {
+        Defense += amount;
+        Console.WriteLine($"{Name}'s defense is now {Defense}.");
+    }
+
+    // Method to use an item
+    public void UseItem(IItem item)
+    {
+        Console.WriteLine($"{Name} uses {item.Name}: {item.Description}");
+        item.Use(this);
     }
 }
